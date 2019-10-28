@@ -3,4 +3,6 @@
     <string name="ok">OK</string>
     <string name="auth_failed_title">Sign in failed</string>
     <string name="auth_failed_desc">Sorry, but sign in failed. Please try again.</string>
+    <string name="auth_login_desc">You\'ll need to log in with your Google account to use this app. Google
+     Play Services is needed.</string>
 </resources>

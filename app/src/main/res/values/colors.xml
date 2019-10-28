@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#2196F3</color>
+    <color name="blue">#2196F3</color>
+    <color name="text">#050505</color>
+    <color name="buttonStroke">#5BB6FF</color>
+    <color name="buttonText">#286091</color>
+    <color name="buttonFill">#86CAFF</color>
+    <color name="buttonRipple">#D4EBFF</color>
+    <!--<color name="buttonStroke">#FFAAA4</color>
+    <color name="buttonText">#F03728</color>
+    <color name="buttonFill">#FFCDD2</color>
+    <color name="buttonRipple">#4FF44336</color>-->
 </resources>
