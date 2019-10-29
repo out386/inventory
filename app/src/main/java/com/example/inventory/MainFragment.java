@@ -4,12 +4,12 @@ package com.example.inventory;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inventory.inventory.InventoryItem;
-import com.example.inventory.utils.GenericDialogFragment;
 import com.example.inventory.utils.InputDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,12 +31,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
+import com.mikepenz.fastadapter.utils.ComparableItemListImpl;
 import com.mikepenz.fastadapter_extensions.drag.ItemTouchCallback;
 import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeDragCallback;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -80,7 +81,10 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     }
 
     private void setupRecycler() {
-        itemAdapter = new ItemAdapter<>();
+        ComparableItemListImpl<InventoryItem> comparableItemList =
+                new ComparableItemListImpl<>((o1, o2) ->
+                        o1.getName().compareToIgnoreCase(o2.getName()));
+        itemAdapter = new ItemAdapter<>(comparableItemList);
         FastAdapter<InventoryItem> fastAdapter = FastAdapter.with(itemAdapter);
         fastAdapter.withSelectable(true);
 
@@ -182,6 +186,12 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             DocumentReference ref = db.collection("stock").document(user.getUid());
 
+            if (checkDuplicate(name)) {
+                Toast.makeText(requireContext(),
+                        "This item already exists.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Map<String, Map<String, Map<String, Long>>> map = new HashMap<>();
             Map<String, Map<String, Long>> items = new HashMap<>();
             Map<String, Long> item = new HashMap<>();
@@ -208,6 +218,14 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         ref.set(map, SetOptions.merge());
     }
 
+    private boolean checkDuplicate(String name) {
+        List<InventoryItem> items = itemAdapter.getAdapterItems();
+        for (InventoryItem item : items) {
+            if (item.getName().equalsIgnoreCase(name))
+                return true;
+        }
+        return false;
+    }
 
     // FastAdapter's Swipe to delete
 
