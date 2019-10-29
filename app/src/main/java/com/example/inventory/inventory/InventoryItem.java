@@ -31,6 +31,10 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
     @ColorInt
     private static int colourNotEmpty;
 
+    public String getName() {
+        return name;
+    }
+
     @NonNull
     @Override
     public ViewHolder getViewHolder(View v) {
@@ -47,16 +51,15 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
         return R.layout.item_inventory;
     }
 
-    public static List<InventoryItem> getItems(List<Map<String, Object>> items, Context context) {
+    public static List<InventoryItem> getItems(Map<String, Map<String, Long>> items, Context context) {
         setColours(context);
 
         ArrayList<InventoryItem> inventoryItems = new ArrayList<>(items.size());
-        for (Map<String, Object> item : items) {
+        for (String key : items.keySet()) {
             InventoryItem inventoryItem = new InventoryItem();
-            inventoryItem.name = (String) item.get("name");
-
-            inventoryItem.price = ((Long) item.get("price"));
-            inventoryItem.quantity = (Long) item.get("quantity");
+            inventoryItem.name = key;
+            inventoryItem.price = items.get(key).get("price");
+            inventoryItem.quantity = items.get(key).get("quantity");
 
             inventoryItems.add(inventoryItem);
         }
@@ -64,7 +67,7 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
     }
 
     private static void setColours(Context context) {
-        Resources r= context.getResources();
+        Resources r = context.getResources();
         Resources.Theme t = context.getTheme();
         colourBlue = r.getColor(R.color.blue, t);
         colourEmpty = r.getColor(R.color.inventoryEmpty, t);

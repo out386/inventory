@@ -1,8 +1,9 @@
 package com.example.inventory;
 
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,27 +12,39 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inventory.inventory.InventoryItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
+import com.mikepenz.fastadapter_extensions.drag.ItemTouchCallback;
+import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
+import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback;
+import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeDragCallback;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements ItemTouchCallback,
+        SimpleSwipeCallback.ItemSwipeCallback {
 
     private RecyclerView recycler;
     private LinearLayout loadingLayout;
     private TextView errorTv;
+    private ItemAdapter<InventoryItem> itemAdapter;
+    private FirebaseUser user;
 
     public MainFragment() {
     }
@@ -51,15 +64,15 @@ public class MainFragment extends Fragment {
         setViewVisibility(1, null);
 
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            initFirestore(user);
+            initFirestore();
         } else {
             ((MainActivity) requireActivity()).login();
         }
     }
 
-    private void initFirestore(FirebaseUser user) {
+    private void initFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("stock").document(user.getUid()).get()
@@ -80,20 +93,49 @@ public class MainFragment extends Fragment {
                 });
     }
 
+    private void deleteItem(String name) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference ref = db.collection("stock").document(user.getUid());
+
+        Map<String, Map<String, Object>> map = new HashMap<>();
+        Map<String, Object> item = new HashMap<>();
+        item.put(name, FieldValue.delete());
+        map.put("items", item);
+        ref.set(map, SetOptions.merge());
+    }
+
     private void onInventory(DocumentSnapshot doc) {
         setViewVisibility(2, null);
 
-        Log.i("MainFragment", "initFirestore: " + doc.getData());
-        ItemAdapter<InventoryItem> itemAdapter = new ItemAdapter<>();
+        itemAdapter = new ItemAdapter<>();
         FastAdapter<InventoryItem> fastAdapter = FastAdapter.with(itemAdapter);
+        fastAdapter.withSelectable(true);
+
+        Context context = requireContext();
+        Drawable deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
+        int deleteColour = ContextCompat.getColor(context, R.color.deleteItem);
+        SimpleDragCallback touchCallback = new SimpleSwipeDragCallback(
+                this,
+                this,
+                deleteDrawable,
+                ItemTouchHelper.LEFT,
+                deleteColour
+        )
+                .withBackgroundSwipeRight(deleteColour)
+                .withLeaveBehindSwipeRight(deleteDrawable);
+        touchCallback.setIsDragEnabled(false);
+
+        ItemTouchHelper touchHelper = new ItemTouchHelper(touchCallback);
         recycler.setAdapter(fastAdapter);
+        touchHelper.attachToRecyclerView(recycler);
+
+
         itemAdapter.add(InventoryItem.getItems(
-                (List<Map<String, Object>>) doc.get("items"), requireContext()));
+                (Map<String, Map<String, Long>>) doc.get("items"), requireContext()));
     }
 
     private void blankInventory() {
         setViewVisibility(3, "No items. Add new items to get started.");
-        Log.i("MainFragment", "blankInventory: ");
     }
 
     private void onError(String err) {
@@ -104,7 +146,6 @@ public class MainFragment extends Fragment {
             message = String.format(message, "An error occurred.");
 
         setViewVisibility(3, message);
-        Log.i("MainFragment", "onError: " + err);
     }
 
     private void setViewVisibility(int type, String message) {
@@ -126,5 +167,24 @@ public class MainFragment extends Fragment {
                 errorTv.setText(message);
                 break;
         }
+    }
+
+    // FastAdapter's Swipe to delete
+
+    @Override
+    public void itemTouchDropped(int oldPosition, int newPosition) {
+    }
+
+    @Override
+    public void itemSwiped(int position, int direction) {
+        deleteItem(itemAdapter.getAdapterItem(position).getName());
+        itemAdapter.remove(position);
+        if (itemAdapter.getAdapterItemCount() == 0)
+            setViewVisibility(3, "No items. Add new items to get started.");
+    }
+
+    @Override
+    public boolean itemTouchOnMove(int oldPosition, int newPosition) {
+        return false;
     }
 }
