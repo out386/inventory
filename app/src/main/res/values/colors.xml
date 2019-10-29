@@ -5,12 +5,11 @@
     <color name="colorAccent">#2196F3</color>
     <color name="blue">#2196F3</color>
     <color name="text">#050505</color>
+    <color name="textSub">#2B2B2B</color>
     <color name="buttonStroke">#5BB6FF</color>
     <color name="buttonText">#286091</color>
     <color name="buttonFill">#86CAFF</color>
     <color name="buttonRipple">#D4EBFF</color>
-    <!--<color name="buttonStroke">#FFAAA4</color>
-    <color name="buttonText">#F03728</color>
-    <color name="buttonFill">#FFCDD2</color>
-    <color name="buttonRipple">#4FF44336</color>-->
+    <color name="inventoryEmpty">#FF5722</color>
+    <color name="inventoryNotEmpty">#4CAF50</color>
 </resources>
