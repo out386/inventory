@@ -4,6 +4,7 @@ package com.example.inventory;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,6 +106,13 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     }
 
     private void onInventory(DocumentSnapshot doc) {
+        Log.i("MainFragment", "onInventory: " +doc.getData());
+        Map<String, Map<String, Long>> inventoryItems =
+                (Map<String, Map<String, Long>>) doc.get("items");
+        if (inventoryItems == null || inventoryItems.size() == 0) {
+            blankInventory();
+            return;
+        }
         setViewVisibility(2, null);
 
         itemAdapter = new ItemAdapter<>();
@@ -130,8 +138,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         touchHelper.attachToRecyclerView(recycler);
 
 
-        itemAdapter.add(InventoryItem.getItems(
-                (Map<String, Map<String, Long>>) doc.get("items"), requireContext()));
+        itemAdapter.add(InventoryItem.getItems(inventoryItems, requireContext()));
     }
 
     private void blankInventory() {
@@ -180,7 +187,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         deleteItem(itemAdapter.getAdapterItem(position).getName());
         itemAdapter.remove(position);
         if (itemAdapter.getAdapterItemCount() == 0)
-            setViewVisibility(3, "No items. Add new items to get started.");
+            blankInventory();
     }
 
     @Override
