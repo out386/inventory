@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="26dp">
+
+    <TextView
+        android:id="@+id/newHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="26dp"
+        android:fontFamily="@font/open_sans_semibold"
+        android:text="New Item"
+        android:textColor="@color/textSub"
+        android:textSize="16sp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newNameLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/newHeader"
+        android:hint="Item name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/newName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLength="70" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newPriceLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/newNameLayout"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="6dp"
+        android:hint="Item price">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/newPrice"
+            android:layout_width="100sp"
+            android:inputType="number"
+            android:maxLength="7"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/newNameLayout"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="20dp"
+        android:layout_toEndOf="@id/newPriceLayout"
+        android:hint="Item quantity">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/newQuantity"
+            android:layout_width="match_parent"
+            android:inputType="number"
+            android:maxLength="7"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</RelativeLayout>

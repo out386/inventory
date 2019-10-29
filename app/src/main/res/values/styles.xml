@@ -4,7 +4,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="materialButtonStyle">@style/ButtonStyle</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
@@ -16,7 +15,7 @@
         <item name="strokeWidth">0dp</item>
         <item name="strokeColor">@color/buttonStroke</item>
         <item name="rippleColor">@color/buttonRipple</item>
-        <item name="android:minHeight">50sp</item>
+        <item name="android:minHeight">60sp</item>
         <item name="android:fontFamily">@font/open_sans_semibold</item>
         <item name="android:textColor">@color/buttonText</item>
     </style>

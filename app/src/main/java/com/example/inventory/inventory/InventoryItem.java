@@ -35,6 +35,16 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
         return name;
     }
 
+    public InventoryItem() {
+
+    }
+
+    public InventoryItem(String name, long price, long quantity) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
     @NonNull
     @Override
     public ViewHolder getViewHolder(View v) {

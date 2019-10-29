@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FFFFFF</color>
-    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryDark">#2196F3</color>
     <color name="colorAccent">#2196F3</color>
     <color name="blue">#2196F3</color>
     <color name="text">#050505</color>
@@ -14,4 +14,5 @@
     <color name="inventoryNotEmpty">#4CAF50</color>
     <color name="deleteItem">#FFB71C1C</color>
     <color name="white">#FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
 </resources>

@@ -20,6 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inventory.inventory.InventoryItem;
+import com.example.inventory.utils.GenericDialogFragment;
+import com.example.inventory.utils.InputDialogFragment;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -46,6 +49,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     private TextView errorTv;
     private ItemAdapter<InventoryItem> itemAdapter;
     private FirebaseUser user;
+    private MaterialButton addButton;
 
     public MainFragment() {
     }
@@ -62,15 +66,42 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         recycler = view.findViewById(R.id.inventoryRecycler);
         loadingLayout = view.findViewById(R.id.inventoryLoading);
         errorTv = view.findViewById(R.id.inventoryErrorTv);
-        setViewVisibility(1, null);
+        addButton = view.findViewById(R.id.inventoryAdd);
+        addButton.setOnClickListener(v -> addItem());
+        setViewVisibility(1, null, true);
+        setupRecycler();
 
-        recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             initFirestore();
         } else {
             ((MainActivity) requireActivity()).login();
         }
+    }
+
+    private void setupRecycler() {
+        itemAdapter = new ItemAdapter<>();
+        FastAdapter<InventoryItem> fastAdapter = FastAdapter.with(itemAdapter);
+        fastAdapter.withSelectable(true);
+
+        Context context = requireContext();
+        Drawable deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
+        int deleteColour = ContextCompat.getColor(context, R.color.deleteItem);
+        SimpleDragCallback touchCallback = new SimpleSwipeDragCallback(
+                this,
+                this,
+                deleteDrawable,
+                ItemTouchHelper.LEFT,
+                deleteColour
+        )
+                .withBackgroundSwipeRight(deleteColour)
+                .withLeaveBehindSwipeRight(deleteDrawable);
+        touchCallback.setIsDragEnabled(false);
+
+        ItemTouchHelper touchHelper = new ItemTouchHelper(touchCallback);
+        recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recycler.setAdapter(fastAdapter);
+        touchHelper.attachToRecyclerView(recycler);
     }
 
     private void initFirestore() {
@@ -94,6 +125,78 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
                 });
     }
 
+    private void onInventory(DocumentSnapshot doc) {
+        itemAdapter.clear();
+        Map<String, Map<String, Long>> inventoryItems =
+                (Map<String, Map<String, Long>>) doc.get("items");
+        if (inventoryItems == null || inventoryItems.size() == 0) {
+            blankInventory();
+            return;
+        }
+        setViewVisibility(2, null, true);
+
+        itemAdapter.add(InventoryItem.getItems(inventoryItems, requireContext()));
+    }
+
+    private void blankInventory() {
+        setViewVisibility(3, "No items. Add new items to get started.", true);
+    }
+
+    private void onError(String err) {
+        String message = "%s Please try again.";
+        if (err != null)
+            message = String.format(message, err);
+        else
+            message = String.format(message, "An error occurred.");
+
+        setViewVisibility(3, message, false);
+    }
+
+    private void setViewVisibility(int type, String message, boolean addAvailable) {
+        switch (type) {
+            case 1:
+                recycler.setVisibility(View.GONE);
+                loadingLayout.setVisibility(View.VISIBLE);
+                errorTv.setVisibility(View.GONE);
+                addButton.setVisibility(View.GONE);
+                break;
+            case 2:
+                recycler.setVisibility(View.VISIBLE);
+                loadingLayout.setVisibility(View.GONE);
+                errorTv.setVisibility(View.GONE);
+                addButton.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                recycler.setVisibility(View.GONE);
+                loadingLayout.setVisibility(View.GONE);
+                errorTv.setVisibility(View.VISIBLE);
+                addButton.setVisibility(addAvailable ? View.VISIBLE : View.GONE);
+                errorTv.setText(message);
+                break;
+        }
+    }
+
+    private void addItem() {
+        InputDialogFragment dialogFragment = InputDialogFragment.newInstance(requireContext());
+        dialogFragment.setOnPositiveButtonTappedListener((name, price, quantity) -> {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference ref = db.collection("stock").document(user.getUid());
+
+            Map<String, Map<String, Map<String, Long>>> map = new HashMap<>();
+            Map<String, Map<String, Long>> items = new HashMap<>();
+            Map<String, Long> item = new HashMap<>();
+            item.put("price", price);
+            item.put("quantity", quantity);
+            items.put(name, item);
+            map.put("items", items);
+            ref.set(map, SetOptions.merge());
+
+            itemAdapter.add(InventoryItem.getItems(items, requireContext()));
+            setViewVisibility(2, null, true);
+        });
+        dialogFragment.show(getFragmentManager(), null);
+    }
+
     private void deleteItem(String name) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference ref = db.collection("stock").document(user.getUid());
@@ -105,76 +208,6 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         ref.set(map, SetOptions.merge());
     }
 
-    private void onInventory(DocumentSnapshot doc) {
-        Log.i("MainFragment", "onInventory: " +doc.getData());
-        Map<String, Map<String, Long>> inventoryItems =
-                (Map<String, Map<String, Long>>) doc.get("items");
-        if (inventoryItems == null || inventoryItems.size() == 0) {
-            blankInventory();
-            return;
-        }
-        setViewVisibility(2, null);
-
-        itemAdapter = new ItemAdapter<>();
-        FastAdapter<InventoryItem> fastAdapter = FastAdapter.with(itemAdapter);
-        fastAdapter.withSelectable(true);
-
-        Context context = requireContext();
-        Drawable deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
-        int deleteColour = ContextCompat.getColor(context, R.color.deleteItem);
-        SimpleDragCallback touchCallback = new SimpleSwipeDragCallback(
-                this,
-                this,
-                deleteDrawable,
-                ItemTouchHelper.LEFT,
-                deleteColour
-        )
-                .withBackgroundSwipeRight(deleteColour)
-                .withLeaveBehindSwipeRight(deleteDrawable);
-        touchCallback.setIsDragEnabled(false);
-
-        ItemTouchHelper touchHelper = new ItemTouchHelper(touchCallback);
-        recycler.setAdapter(fastAdapter);
-        touchHelper.attachToRecyclerView(recycler);
-
-
-        itemAdapter.add(InventoryItem.getItems(inventoryItems, requireContext()));
-    }
-
-    private void blankInventory() {
-        setViewVisibility(3, "No items. Add new items to get started.");
-    }
-
-    private void onError(String err) {
-        String message = "%s Please try again.";
-        if (err != null)
-            message = String.format(message, err);
-        else
-            message = String.format(message, "An error occurred.");
-
-        setViewVisibility(3, message);
-    }
-
-    private void setViewVisibility(int type, String message) {
-        switch (type) {
-            case 1:
-                recycler.setVisibility(View.GONE);
-                loadingLayout.setVisibility(View.VISIBLE);
-                errorTv.setVisibility(View.GONE);
-                break;
-            case 2:
-                recycler.setVisibility(View.VISIBLE);
-                loadingLayout.setVisibility(View.GONE);
-                errorTv.setVisibility(View.GONE);
-                break;
-            case 3:
-                recycler.setVisibility(View.GONE);
-                loadingLayout.setVisibility(View.GONE);
-                errorTv.setVisibility(View.VISIBLE);
-                errorTv.setText(message);
-                break;
-        }
-    }
 
     // FastAdapter's Swipe to delete
 
