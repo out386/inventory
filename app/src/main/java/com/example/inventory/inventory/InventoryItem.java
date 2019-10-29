@@ -35,14 +35,16 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
         return name;
     }
 
-    public InventoryItem() {
-
+    public long getPrice() {
+        return price;
     }
 
-    public InventoryItem(String name, long price, long quantity) {
-        this.name = name;
-        this.price = price;
-        this.quantity = quantity;
+    public long getQuantity() {
+        return quantity;
+    }
+
+    public InventoryItem() {
+
     }
 
     @NonNull

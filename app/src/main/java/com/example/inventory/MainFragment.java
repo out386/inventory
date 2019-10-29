@@ -37,8 +37,10 @@ import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeDragCallback;
 
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -47,7 +49,10 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
 
     private RecyclerView recycler;
     private LinearLayout loadingLayout;
+    private LinearLayout inventoryData;
     private TextView errorTv;
+    private TextView statusCount;
+    private TextView statusValue;
     private ItemAdapter<InventoryItem> itemAdapter;
     private FirebaseUser user;
     private MaterialButton addButton;
@@ -66,8 +71,12 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         super.onViewCreated(view, savedInstanceState);
         recycler = view.findViewById(R.id.inventoryRecycler);
         loadingLayout = view.findViewById(R.id.inventoryLoading);
+        inventoryData = view.findViewById(R.id.inventoryData);
         errorTv = view.findViewById(R.id.inventoryErrorTv);
+        statusCount = view.findViewById(R.id.inventoryStatusCount);
+        statusValue = view.findViewById(R.id.inventoryStatusValue);
         addButton = view.findViewById(R.id.inventoryAdd);
+
         addButton.setOnClickListener(v -> addItem());
         setViewVisibility(1, null, true);
         setupRecycler();
@@ -140,6 +149,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         setViewVisibility(2, null, true);
 
         itemAdapter.add(InventoryItem.getItems(inventoryItems, requireContext()));
+        setStatus();
     }
 
     private void blankInventory() {
@@ -159,19 +169,19 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     private void setViewVisibility(int type, String message, boolean addAvailable) {
         switch (type) {
             case 1:
-                recycler.setVisibility(View.GONE);
+                inventoryData.setVisibility(View.GONE);
                 loadingLayout.setVisibility(View.VISIBLE);
                 errorTv.setVisibility(View.GONE);
                 addButton.setVisibility(View.GONE);
                 break;
             case 2:
-                recycler.setVisibility(View.VISIBLE);
+                inventoryData.setVisibility(View.VISIBLE);
                 loadingLayout.setVisibility(View.GONE);
                 errorTv.setVisibility(View.GONE);
                 addButton.setVisibility(View.VISIBLE);
                 break;
             case 3:
-                recycler.setVisibility(View.GONE);
+                inventoryData.setVisibility(View.GONE);
                 loadingLayout.setVisibility(View.GONE);
                 errorTv.setVisibility(View.VISIBLE);
                 addButton.setVisibility(addAvailable ? View.VISIBLE : View.GONE);
@@ -203,6 +213,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
 
             itemAdapter.add(InventoryItem.getItems(items, requireContext()));
             setViewVisibility(2, null, true);
+            setStatus();
         });
         dialogFragment.show(getFragmentManager(), null);
     }
@@ -227,6 +238,17 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         return false;
     }
 
+    private void setStatus() {
+        long totalValue = 0;
+        List<InventoryItem> items = itemAdapter.getAdapterItems();
+        for (InventoryItem item : items) {
+            totalValue = totalValue + item.getPrice() * item.getQuantity();
+        }
+        String value = Currency.getInstance(Locale.getDefault()).getSymbol() + " " + totalValue;
+        statusValue.setText(value);
+        statusCount.setText(Integer.toString(items.size()));
+    }
+
     // FastAdapter's Swipe to delete
 
     @Override
@@ -237,6 +259,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     public void itemSwiped(int position, int direction) {
         deleteItem(itemAdapter.getAdapterItem(position).getName());
         itemAdapter.remove(position);
+        setStatus();
         if (itemAdapter.getAdapterItemCount() == 0)
             blankInventory();
     }

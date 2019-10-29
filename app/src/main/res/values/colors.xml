@@ -15,4 +15,5 @@
     <color name="deleteItem">#FFB71C1C</color>
     <color name="white">#FFFFFF</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="cardStroke">#DBDBDB</color>
 </resources>
