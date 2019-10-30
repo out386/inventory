@@ -89,6 +89,24 @@ public class MainActivity extends AppCompatActivity {
     public void setToolbarImage(Uri uri) {
         profileImageUri = uri;
         toolbar.setImage(uri);
+        toolbar.setImageListener(view -> {
+            GenericDialogFragment dialogFragment = GenericDialogFragment.newInstance()
+                    .setTitle("Log out")
+                    .setMessage("Do you want to log out?")
+                    .setPositiveText("Yes")
+                    .setNegativeText("No")
+                    .setOnPositiveButtonTappedListener(() ->
+                            AuthUI.getInstance()
+                                    .signOut(this)
+                                    .addOnCompleteListener(task ->
+                                    {
+                                        toolbar.setImage(null);
+                                        toolbar.setImageListener(null);
+                                        Navigation.findNavController(this, R.id.mainNav)
+                                                .navigate(R.id.authFragment);
+                                    }));
+            dialogFragment.show(getSupportFragmentManager(), null);
+        });
     }
 
     private void showAuthFailed(String err) {
@@ -119,9 +137,6 @@ public class MainActivity extends AppCompatActivity {
                             View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
-        /*new Handler().postDelayed(() ->
-                        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPrimary)),
-                8000);*/
 
         decorView.setOnApplyWindowInsetsListener((view, insets) -> {
             int topInset = insets.getSystemWindowInsetTop();

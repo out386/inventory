@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -132,22 +133,28 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
 
     private void setupTranslucent(View root) {
         setupRecycler();
+        handleInsets(root.getRootWindowInsets());
         root.setOnApplyWindowInsetsListener((view, insets) -> {
-            int bottomInset = insets.getSystemWindowInsetTop();
-            RelativeLayout.LayoutParams params =
-                    (RelativeLayout.LayoutParams) addButton.getLayoutParams();
-
-            // Yes, I know that that "20" is not in DP.
-            params.setMargins(0, 0, 0, 20 + bottomInset);
-            if (itemDecoration != null)
-                recycler.removeItemDecoration(itemDecoration);
-            itemDecoration = new ItemDecoration(bottomInset);
-            recycler.addItemDecoration(itemDecoration);
-            return insets.consumeSystemWindowInsets();
+            handleInsets(insets);
+            return insets;
         });
 
     }
 
+    private void handleInsets(WindowInsets insets) {
+        if (insets == null)
+            return;
+        int bottomInset = insets.getSystemWindowInsetTop();
+        RelativeLayout.LayoutParams params =
+                (RelativeLayout.LayoutParams) addButton.getLayoutParams();
+
+        // Yes, I know that that "20" is not in DP.
+        params.setMargins(0, 0, 0, 20 + bottomInset);
+        if (itemDecoration != null)
+            recycler.removeItemDecoration(itemDecoration);
+        itemDecoration = new ItemDecoration(bottomInset);
+        recycler.addItemDecoration(itemDecoration);
+    }
 
     private void initFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
