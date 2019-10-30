@@ -40,6 +40,7 @@ import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback;
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeDragCallback;
 
+import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     private ItemAdapter<InventoryItem> itemAdapter;
     private FirebaseUser user;
     private MaterialButton addButton;
+    private NumberFormat numberFormat;
 
     public MainFragment() {
     }
@@ -72,6 +74,8 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        numberFormat = NumberFormat.getNumberInstance();
+        numberFormat.setMaximumFractionDigits(2);
         recycler = view.findViewById(R.id.inventoryRecycler);
         loadingLayout = view.findViewById(R.id.inventoryLoading);
         inventoryData = view.findViewById(R.id.inventoryData);
@@ -253,7 +257,8 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
             totalValue = totalValue + item.getPrice() * item.getQuantity();
         }
         String currencySymbol = Currency.getInstance(Locale.getDefault()).getSymbol();
-        String value = String.format(Locale.US, "%s %.2f", currencySymbol, totalValue);
+        String value = String.format("%s %s", currencySymbol,
+                numberFormat.format(totalValue));
         statusValue.setText(value);
         statusCount.setText(Integer.toString(items.size()));
     }

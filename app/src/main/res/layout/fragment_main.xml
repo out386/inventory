@@ -60,9 +60,44 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="70dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="50dp"
                 android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:id="@+id/inventoryStatusValueHolder">
+
+                <TextView
+                    android:id="@+id/inventoryStatusValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/orkney_medium"
+                    android:maxWidth="250dp"
+                    android:gravity="center_horizontal"
+                    android:maxLines="2"
+                    android:textColor="@color/text"
+                    android:textSize="32sp"
+                    tools:text="Rs 43,43,43,89,899" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/orkney_light"
+                    android:text="Total value"
+                    android:textColor="@color/text"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="50dp"
+                android:layout_alignBottom="@id/inventoryStatusValueHolder"
+                android:layout_alignTop="@id/inventoryStatusValueHolder"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
@@ -83,37 +118,6 @@
                     android:layout_marginBottom="16dp"
                     android:fontFamily="@font/orkney_light"
                     android:text="Items"
-                    android:textColor="@color/text"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="70dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/inventoryStatusValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="@font/orkney_medium"
-                    android:maxWidth="250dp"
-                    android:maxLines="2"
-                    android:textColor="@color/text"
-                    android:textSize="32sp"
-                    tools:text="Rs 899" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:fontFamily="@font/orkney_light"
-                    android:text="Total value"
                     android:textColor="@color/text"
                     android:textSize="14sp" />
 

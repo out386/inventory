@@ -40,6 +40,8 @@ import androidx.fragment.app.DialogFragment;
 import com.example.inventory.R;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.text.NumberFormat;
+
 public class InputDialogFragment extends DialogFragment {
 
     private OnPositiveButtonTappedListener positiveListener;
@@ -81,10 +83,12 @@ public class InputDialogFragment extends DialogFragment {
         TextInputEditText nameTv = content.findViewById(R.id.newName);
         TextInputEditText priceTv = content.findViewById(R.id.newPrice);
         TextInputEditText quantityTv = content.findViewById(R.id.newQuantity);
+        NumberFormat numberFormat = NumberFormat.getNumberInstance();
+        numberFormat.setMaximumFractionDigits(2);
 
         if (prefilledName != null) {
             nameTv.setText(prefilledName);
-            priceTv.setText(String.format("%.2f", prefilledPrice));
+            priceTv.setText(numberFormat.format(prefilledPrice));
             quantityTv.setText(Long.toString(prefilledQuantity));
         }
 

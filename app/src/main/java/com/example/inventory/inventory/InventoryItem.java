@@ -13,6 +13,8 @@ import com.example.inventory.R;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
@@ -30,6 +32,7 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
     private static int colourEmpty;
     @ColorInt
     private static int colourNotEmpty;
+    private static NumberFormat numberFormat;
 
     public String getName() {
         return name;
@@ -85,6 +88,8 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
         colourBlue = r.getColor(R.color.blue, t);
         colourEmpty = r.getColor(R.color.inventoryEmpty, t);
         colourNotEmpty = r.getColor(R.color.inventoryNotEmpty, t);
+        numberFormat = NumberFormat.getNumberInstance();
+        numberFormat.setMaximumFractionDigits(2);
     }
 
     class ViewHolder extends FastAdapter.ViewHolder<InventoryItem> {
@@ -110,8 +115,10 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
             name.setText(item.name);
             name.setSelected(true);
             quantity.setText(String.format("%d units", item.quantity));
-            price.setText(String.format("%s %.2f/unit", currency, item.price));
-            value.setText(String.format("%s %.2f", currency, item.price * item.quantity));
+            price.setText(String.format("%s %s/unit", currency,
+                    numberFormat.format(item.price)));
+            value.setText(String.format("%s %s", currency,
+                    numberFormat.format(item.price * item.quantity)));
 
             if (item.quantity == 0 || item.price == 0)
                 value.setTextColor(colourEmpty);
