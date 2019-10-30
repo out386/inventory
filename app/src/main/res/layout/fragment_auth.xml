@@ -14,7 +14,7 @@
         android:visibility="gone">
 
         <com.github.ybq.android.spinkit.SpinKitView
-            style="@style/SpinKitView.Large.CubeGrid"
+            style="@style/SpinKitView.Large.MultiplePulse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
