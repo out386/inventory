@@ -23,7 +23,7 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
 
     private String name;
     private long quantity;
-    private long price;
+    private double price;
     @ColorInt
     private static int colourBlue;
     @ColorInt
@@ -35,7 +35,7 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
         return name;
     }
 
-    public long getPrice() {
+    public double getPrice() {
         return price;
     }
 
@@ -63,7 +63,8 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
         return R.layout.item_inventory;
     }
 
-    public static List<InventoryItem> getItems(Map<String, Map<String, Long>> items, Context context) {
+    @SuppressWarnings("ConstantConditions")
+    public static List<InventoryItem> getItems(Map<String, Map<String, Double>> items, Context context) {
         setColours(context);
 
         ArrayList<InventoryItem> inventoryItems = new ArrayList<>(items.size());
@@ -71,7 +72,7 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
             InventoryItem inventoryItem = new InventoryItem();
             inventoryItem.name = key;
             inventoryItem.price = items.get(key).get("price");
-            inventoryItem.quantity = items.get(key).get("quantity");
+            inventoryItem.quantity = (long) ((double) items.get(key).get("quantity"));
 
             inventoryItems.add(inventoryItem);
         }
@@ -109,8 +110,8 @@ public class InventoryItem extends AbstractItem<InventoryItem, InventoryItem.Vie
             name.setText(item.name);
             name.setSelected(true);
             quantity.setText(String.format("%d units", item.quantity));
-            price.setText(String.format("%s %d/unit", currency, item.price));
-            value.setText(String.format("%s %d", currency, item.price * item.quantity));
+            price.setText(String.format("%s %.2f/unit", currency, item.price));
+            value.setText(String.format("%s %.2f", currency, item.price * item.quantity));
 
             if (item.quantity == 0 || item.price == 0)
                 value.setTextColor(colourEmpty);

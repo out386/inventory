@@ -46,7 +46,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/newPrice"
             android:layout_width="100sp"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:maxLength="7"
             android:layout_height="wrap_content" />
 

@@ -1,6 +1,7 @@
 package com.example.inventory;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -143,10 +144,11 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
                 });
     }
 
+    @SuppressWarnings("unchecked")
     private void onInventory(DocumentSnapshot doc) {
         itemAdapter.clear();
-        Map<String, Map<String, Long>> inventoryItems =
-                (Map<String, Map<String, Long>>) doc.get("items");
+        Map<String, Map<String, Double>> inventoryItems =
+                (Map<String, Map<String, Double>>) doc.get("items");
         if (inventoryItems == null || inventoryItems.size() == 0) {
             blankInventory();
             return;
@@ -207,11 +209,11 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
                 return;
             }
 
-            Map<String, Map<String, Map<String, Long>>> map = new HashMap<>();
-            Map<String, Map<String, Long>> items = new HashMap<>();
-            Map<String, Long> item = new HashMap<>();
+            Map<String, Map<String, Map<String, Double>>> map = new HashMap<>();
+            Map<String, Map<String, Double>> items = new HashMap<>();
+            Map<String, Double> item = new HashMap<>();
             item.put("price", price);
-            item.put("quantity", quantity);
+            item.put("quantity", (double) quantity);
             items.put(name, item);
             map.put("items", items);
             ref.set(map, SetOptions.merge());
@@ -243,13 +245,15 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         return false;
     }
 
+    @SuppressLint("SetTextI18n")
     private void setStatus() {
-        long totalValue = 0;
+        double totalValue = 0;
         List<InventoryItem> items = itemAdapter.getAdapterItems();
         for (InventoryItem item : items) {
             totalValue = totalValue + item.getPrice() * item.getQuantity();
         }
-        String value = Currency.getInstance(Locale.getDefault()).getSymbol() + " " + totalValue;
+        String currencySymbol = Currency.getInstance(Locale.getDefault()).getSymbol();
+        String value = String.format(Locale.US, "%s %.2f", currencySymbol, totalValue);
         statusValue.setText(value);
         statusCount.setText(Integer.toString(items.size()));
     }
@@ -288,11 +292,11 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 DocumentReference ref = db.collection("stock").document(user.getUid());
 
-                Map<String, Map<String, Map<String, Long>>> map = new HashMap<>();
-                Map<String, Map<String, Long>> items = new HashMap<>();
-                Map<String, Long> item = new HashMap<>();
+                Map<String, Map<String, Map<String, Double>>> map = new HashMap<>();
+                Map<String, Map<String, Double>> items = new HashMap<>();
+                Map<String, Double> item = new HashMap<>();
                 item.put("price", price);
-                item.put("quantity", quantity);
+                item.put("quantity", (double) quantity);
                 items.put(name, item);
                 if (!originalItem.getName().equals(name))
                     deleteItem(originalItem.getName());

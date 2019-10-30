@@ -49,7 +49,7 @@ public class InputDialogFragment extends DialogFragment {
     private String positiveText;
     private String negativeText;
     private String prefilledName;
-    private long prefilledPrice;
+    private double prefilledPrice;
     private long prefilledQuantity;
     private boolean cancelable = true;
     private View content;
@@ -84,7 +84,7 @@ public class InputDialogFragment extends DialogFragment {
 
         if (prefilledName != null) {
             nameTv.setText(prefilledName);
-            priceTv.setText(Long.toString(prefilledPrice));
+            priceTv.setText(String.format("%.2f", prefilledPrice));
             quantityTv.setText(Long.toString(prefilledQuantity));
         }
 
@@ -106,7 +106,7 @@ public class InputDialogFragment extends DialogFragment {
                             String quantity = quantityE.toString();
                             if (!"".equals(name) && !"".equals(price) && !"".equals(quantity))
                                 positiveListener.onButtonPressed(name.trim(),
-                                        Long.parseLong(price),
+                                        Double.parseDouble(price),
                                         Long.parseLong(quantity));
                         }
                     }
@@ -126,7 +126,7 @@ public class InputDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public InputDialogFragment setPrefilled(String name, long price, long quantity) {
+    public InputDialogFragment setPrefilled(String name, double price, long quantity) {
         prefilledName = name;
         prefilledPrice = price;
         prefilledQuantity = quantity;
@@ -169,7 +169,7 @@ public class InputDialogFragment extends DialogFragment {
     }
 
     public interface OnPositiveButtonTappedListener {
-        void onButtonPressed(String name, long price, long quantity);
+        void onButtonPressed(String name, double price, long quantity);
     }
 
     public interface OnNegativeButtonTappedListener {
