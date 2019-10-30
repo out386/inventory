@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         if (savedInstanceState != null) {
-            Log.i("blah", "onCreate: ");
             profileImageUri = savedInstanceState.getParcelable(PROFILE_IMAGE_URI);
             if (profileImageUri != null)
                 toolbar.setImage(profileImageUri);
@@ -121,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
                             View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
+        /*new Handler().postDelayed(() ->
+                        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPrimary)),
+                8000);*/
 
         decorView.setOnApplyWindowInsetsListener((view, insets) -> {
             int topInset = insets.getSystemWindowInsetTop();
@@ -131,8 +132,9 @@ public class MainActivity extends AppCompatActivity {
             toolbarParams.height = (actionbarHeight > -1 ? actionbarHeight : toolbarParams.height) +
                     topInset;
             toolbar.setPadding(leftInset, topInset, rightInset, 0);
+            decorView.setPadding(leftInset, 0, rightInset, 0);
 
-            return insets.consumeSystemWindowInsets();
+            return insets;
         });
 
     }

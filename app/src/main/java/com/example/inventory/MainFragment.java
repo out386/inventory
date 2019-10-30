@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inventory.inventory.InventoryItem;
+import com.example.inventory.inventory.ItemDecoration;
 import com.example.inventory.utils.InputDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -61,6 +63,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     private FirebaseUser user;
     private MaterialButton addButton;
     private NumberFormat numberFormat;
+    private ItemDecoration itemDecoration;
 
     public MainFragment() {
     }
@@ -86,7 +89,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
 
         addButton.setOnClickListener(v -> addItem());
         setViewVisibility(1, null, true);
-        setupRecycler();
+        setupTranslucent(view);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -126,6 +129,25 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         recycler.setAdapter(fastAdapter);
         touchHelper.attachToRecyclerView(recycler);
     }
+
+    private void setupTranslucent(View root) {
+        setupRecycler();
+        root.setOnApplyWindowInsetsListener((view, insets) -> {
+            int bottomInset = insets.getSystemWindowInsetTop();
+            RelativeLayout.LayoutParams params =
+                    (RelativeLayout.LayoutParams) addButton.getLayoutParams();
+
+            // Yes, I know that that "20" is not in DP.
+            params.setMargins(0, 0, 0, 20 + bottomInset);
+            if (itemDecoration != null)
+                recycler.removeItemDecoration(itemDecoration);
+            itemDecoration = new ItemDecoration(bottomInset);
+            recycler.addItemDecoration(itemDecoration);
+            return insets.consumeSystemWindowInsets();
+        });
+
+    }
+
 
     private void initFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
