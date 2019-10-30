@@ -129,6 +129,7 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         recycler.setAdapter(fastAdapter);
         touchHelper.attachToRecyclerView(recycler);
+        setupButtonScroll();
     }
 
     private void setupTranslucent(View root) {
@@ -154,6 +155,27 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
             recycler.removeItemDecoration(itemDecoration);
         itemDecoration = new ItemDecoration(bottomInset);
         recycler.addItemDecoration(itemDecoration);
+    }
+
+    private void setupButtonScroll() {
+        int animTime = getResources().getInteger(android.R.integer.config_mediumAnimTime);
+        recycler.clearOnScrollListeners();
+        recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy < 1) {
+                    addButton.animate()
+                            .setDuration(animTime)
+                            .translationY(0);
+                } else if (dy > 1) {
+                    addButton.animate()
+                            .setDuration(animTime)
+                            .translationY(addButton.getHeight() << 1);
+                }
+            }
+        });
     }
 
     private void initFirestore() {
