@@ -20,6 +20,7 @@ package com.example.inventory.utils;
  *
  */
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -47,6 +48,9 @@ public class InputDialogFragment extends DialogFragment {
     private String message;
     private String positiveText;
     private String negativeText;
+    private String prefilledName;
+    private long prefilledPrice;
+    private long prefilledQuantity;
     private boolean cancelable = true;
     private View content;
 
@@ -67,11 +71,22 @@ public class InputDialogFragment extends DialogFragment {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (savedInstanceState != null)
             dismiss();
+
+        TextInputEditText nameTv = content.findViewById(R.id.newName);
+        TextInputEditText priceTv = content.findViewById(R.id.newPrice);
+        TextInputEditText quantityTv = content.findViewById(R.id.newQuantity);
+
+        if (prefilledName != null) {
+            nameTv.setText(prefilledName);
+            priceTv.setText(Long.toString(prefilledPrice));
+            quantityTv.setText(Long.toString(prefilledQuantity));
+        }
 
         Log.i("InputDialogFragment", "onCreateDialog: " + content);
         if (positiveText == null)
@@ -82,9 +97,6 @@ public class InputDialogFragment extends DialogFragment {
         builder.setMessage(message)
                 .setPositiveButton(positiveText, (dialog, id) -> {
                     if (positiveListener != null) {
-                        TextInputEditText nameTv = content.findViewById(R.id.newName);
-                        TextInputEditText priceTv = content.findViewById(R.id.newPrice);
-                        TextInputEditText quantityTv = content.findViewById(R.id.newQuantity);
                         Editable nameE = nameTv.getText();
                         Editable priceE = priceTv.getText();
                         Editable quantityE = quantityTv.getText();
@@ -112,6 +124,13 @@ public class InputDialogFragment extends DialogFragment {
         Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(cancelable);
         return dialog;
+    }
+
+    public InputDialogFragment setPrefilled(String name, long price, long quantity) {
+        prefilledName = name;
+        prefilledPrice = price;
+        prefilledQuantity = quantity;
+        return this;
     }
 
     public InputDialogFragment setOnPositiveButtonTappedListener(OnPositiveButtonTappedListener positiveListener) {

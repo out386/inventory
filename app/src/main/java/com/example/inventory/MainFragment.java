@@ -30,7 +30,9 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.mikepenz.fastadapter.FastAdapter;
+import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
+import com.mikepenz.fastadapter.listeners.OnClickListener;
 import com.mikepenz.fastadapter.utils.ComparableItemListImpl;
 import com.mikepenz.fastadapter_extensions.drag.ItemTouchCallback;
 import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
@@ -94,8 +96,11 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
                 new ComparableItemListImpl<>((o1, o2) ->
                         o1.getName().compareToIgnoreCase(o2.getName()));
         itemAdapter = new ItemAdapter<>(comparableItemList);
-        FastAdapter<InventoryItem> fastAdapter = FastAdapter.with(itemAdapter);
-        fastAdapter.withSelectable(true);
+        FastAdapter<InventoryItem> fastAdapter = FastAdapter
+                .with(itemAdapter);
+        fastAdapter
+                .withSelectable(true)
+                .withOnClickListener(new OnInventoryClickedListener());
 
         Context context = requireContext();
         Drawable deleteDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete);
@@ -267,5 +272,42 @@ public class MainFragment extends Fragment implements ItemTouchCallback,
     @Override
     public boolean itemTouchOnMove(int oldPosition, int newPosition) {
         return false;
+    }
+
+    class OnInventoryClickedListener implements OnClickListener<InventoryItem> {
+        @Override
+        public boolean onClick(@javax.annotation.Nullable View v, IAdapter<InventoryItem> adapter,
+                               InventoryItem originalItem, int position) {
+
+            InputDialogFragment dialogFragment = InputDialogFragment
+                    .newInstance(requireContext())
+                    .setPrefilled(originalItem.getName(),
+                            originalItem.getPrice(), originalItem.getQuantity());
+
+            dialogFragment.setOnPositiveButtonTappedListener((name, price, quantity) -> {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference ref = db.collection("stock").document(user.getUid());
+
+                Map<String, Map<String, Map<String, Long>>> map = new HashMap<>();
+                Map<String, Map<String, Long>> items = new HashMap<>();
+                Map<String, Long> item = new HashMap<>();
+                item.put("price", price);
+                item.put("quantity", quantity);
+                items.put(name, item);
+                if (!originalItem.getName().equals(name))
+                    deleteItem(originalItem.getName());
+                items.put(name, item);
+                map.put("items", items);
+                ref.set(map, SetOptions.merge());
+
+                itemAdapter.remove(itemAdapter.getAdapterPosition(originalItem));
+                itemAdapter.add(InventoryItem.getItems(items, requireContext()));
+                setViewVisibility(2, null, true);
+                setStatus();
+            });
+            dialogFragment.show(getFragmentManager(), null);
+
+            return false;
+        }
     }
 }
